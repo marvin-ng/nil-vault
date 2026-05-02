@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import VideoTemplate from "@/components/video/VideoTemplate";
 
 const GOLD = "#E8B84B";
 const GOLD_LIGHT = "#f5d07a";
@@ -350,6 +351,22 @@ export default function Landing() {
           ))}
         </div>
       </div>
+
+      {/* DEMO VIDEO */}
+      <section style={{ padding:"100px 52px 0", borderBottom:`1px solid ${BORDER}`, background: BG }}>
+        <div className="lv-section-header lv-reveal" style={{ display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:40,opacity:0,transform:"translateY(36px)",transition:"opacity .75s ease, transform .75s ease" }}>
+          <div>
+            <div style={{ fontFamily:"'DM Mono',monospace",fontSize:10,letterSpacing:4,textTransform:"uppercase",color:GOLD,marginBottom:12 }}>Product Demo</div>
+            <h2 style={{ fontFamily:"'Barlow Condensed',sans-serif",fontWeight:900,fontSize:"clamp(40px,5vw,64px)",textTransform:"uppercase",lineHeight:.93,color:"#fff",margin:0 }}>
+              See It In <em style={{ color:GOLD }}>Action.</em>
+            </h2>
+          </div>
+          <span style={{ fontFamily:"'DM Mono',monospace",fontSize:10,color:MUTED,letterSpacing:2,textTransform:"uppercase" }}>45-Second Overview</span>
+        </div>
+        <div style={{ position:"relative",width:"100%",aspectRatio:"16/9",overflow:"hidden",border:`1px solid ${BORDER}`,background:"#000" }}>
+          <VideoTemplate />
+        </div>
+      </section>
 
       {/* STORY */}
       <section className="lv-story-grid lv-reveal" style={{ ...revealStyle(0),padding:"120px 52px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:100,alignItems:"center",borderBottom:`1px solid ${BORDER}` }}>
