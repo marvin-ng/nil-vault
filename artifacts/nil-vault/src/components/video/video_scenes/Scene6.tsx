@@ -6,47 +6,98 @@ export function Scene6() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 500),
-      setTimeout(() => setPhase(2), 2000),
-      setTimeout(() => setPhase(3), 4000),
+      setTimeout(() => setPhase(1), 400),
+      setTimeout(() => setPhase(2), 1800),
+      setTimeout(() => setPhase(3), 3000),
+      setTimeout(() => setPhase(4), 4200),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
   return (
-    <motion.div 
-      className="absolute inset-0 flex flex-col items-center justify-center z-10"
+    <motion.div
+      style={{
+        position: "absolute", inset: 0, zIndex: 10,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        textAlign: "center",
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 0.9 }}
     >
-      <div className="text-center">
-        <motion.div 
-          className="text-8xl font-black uppercase font-['Barlow_Condensed'] tracking-widest mb-4"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: phase >= 1 ? 1 : 0.8, opacity: phase >= 1 ? 1 : 0 }}
-          transition={{ type: "spring", bounce: 0.5, duration: 1.5 }}
-        >
-          NIL <span className="text-[#E8B84B] drop-shadow-[0_0_30px_rgba(232,184,75,0.5)]">Vault</span>
-        </motion.div>
-        
-        <motion.div 
-          className="font-serif italic text-3xl text-[#888] mb-16"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: phase >= 2 ? 0 : 20, opacity: phase >= 2 ? 1 : 0 }}
-        >
-          Your back office.
-        </motion.div>
+      <motion.div
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 900, fontSize: 110,
+          textTransform: "uppercase", letterSpacing: 8,
+          lineHeight: 0.9,
+          color: "#EBEBEB",
+          textShadow: phase >= 1 ? "0 0 80px rgba(232,184,75,0.35), 0 0 160px rgba(232,184,75,0.15)" : "none",
+          transition: "text-shadow 1.2s ease",
+        }}
+        initial={{ scale: 0.85, opacity: 0 }}
+        animate={{ scale: phase >= 1 ? 1 : 0.85, opacity: phase >= 1 ? 1 : 0 }}
+        transition={{ type: "spring", bounce: 0.3, duration: 1.2 }}
+      >
+        NIL <span style={{ color: "#E8B84B" }}>Vault</span>
+      </motion.div>
 
-        <motion.div 
-          className="inline-block bg-[#E8B84B] text-black font-mono uppercase tracking-widest text-sm font-bold py-4 px-8"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: phase >= 3 ? 0 : 20, opacity: phase >= 3 ? 1 : 0 }}
-        >
-          Join the Waitlist →
-        </motion.div>
-      </div>
+      <motion.div
+        style={{
+          fontFamily: "'Lora', serif",
+          fontSize: 32, fontStyle: "italic",
+          color: "#888", marginTop: 28, lineHeight: 1.4,
+        }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: phase >= 2 ? 1 : 0, y: phase >= 2 ? 0 : 16 }}
+        transition={{ duration: 0.7 }}
+      >
+        The back office you never had.
+      </motion.div>
+
+      <motion.div
+        style={{
+          fontFamily: "'DM Mono', monospace",
+          fontSize: 13, letterSpacing: 2,
+          textTransform: "uppercase",
+          color: "#E8B84B",
+          marginTop: 14,
+        }}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: phase >= 3 ? 1 : 0, y: phase >= 3 ? 0 : 10 }}
+        transition={{ duration: 0.6 }}
+      >
+        Free for athletes. Always.
+      </motion.div>
+
+      <motion.div
+        style={{
+          marginTop: 52,
+          background: "#E8B84B",
+          color: "#000",
+          fontFamily: "'DM Mono', monospace",
+          fontSize: 13, fontWeight: 700,
+          letterSpacing: 3, textTransform: "uppercase",
+          padding: "18px 48px",
+          display: "inline-block",
+        }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={phase >= 4 ? {
+          opacity: 1, y: 0,
+          boxShadow: [
+            "0 0 0px rgba(232,184,75,0)",
+            "0 0 32px rgba(232,184,75,0.5)",
+            "0 0 12px rgba(232,184,75,0.25)",
+            "0 0 32px rgba(232,184,75,0.5)",
+            "0 0 12px rgba(232,184,75,0.25)",
+          ],
+        } : { opacity: 0, y: 16 }}
+        transition={{ duration: 0.6, boxShadow: { repeat: Infinity, duration: 2, ease: "easeInOut" } }}
+      >
+        → Join the Waitlist
+      </motion.div>
     </motion.div>
   );
 }
