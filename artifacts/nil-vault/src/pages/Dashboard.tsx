@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AddDealModal } from "@/components/AddDealModal";
 import { DollarSign, Briefcase, AlertTriangle, Clock, Plus, ChevronRight } from "lucide-react";
 import { format, isPast, isWithinInterval, addDays } from "date-fns";
+import { DEMO_DEALS, DEMO_PAYMENTS } from "@/lib/mockData";
 
 interface Deal {
   id: string;
@@ -25,14 +26,46 @@ interface KpiData {
   upcomingDeadlines: Deal[];
 }
 
+function computeKpi(deals: Deal[], payments: { amount: number }[]): KpiData {
+  const totalEarned = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const active = deals.filter((d) => d.status !== "paid");
+  const now = new Date();
+  const overdue = deals.filter(
+    (d) => d.deadline && isPast(new Date(d.deadline)) && d.status !== "paid"
+  );
+  const pendingPayment = deals.filter((d) => d.status === "posted");
+  const upcomingDeadlines = deals
+    .filter(
+      (d) =>
+        d.deadline &&
+        d.status !== "paid" &&
+        isWithinInterval(new Date(d.deadline), { start: now, end: addDays(now, 14) })
+    )
+    .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
+    .slice(0, 5);
+
+  return {
+    totalEarned,
+    activeDeals: active.length,
+    overdue: overdue.length,
+    pendingPayment: pendingPayment.length,
+    upcomingDeadlines,
+  };
+}
+
 export default function Dashboard() {
-  const { user, profile } = useAuthStore();
+  const { user, profile, demoMode } = useAuthStore();
   const [, setLocation] = useLocation();
   const [kpi, setKpi] = useState<KpiData | null>(null);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
 
   const fetchData = async () => {
+    if (demoMode) {
+      setKpi(computeKpi(DEMO_DEALS as Deal[], DEMO_PAYMENTS));
+      setLoading(false);
+      return;
+    }
     if (!user) { setLoading(false); return; }
     setLoading(true);
 
@@ -46,36 +79,13 @@ export default function Dashboard() {
       .select("amount")
       .eq("athlete_id", user.id);
 
-    const totalEarned = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
-    const active = (deals ?? []).filter((d) => !["paid"].includes(d.status));
-    const now = new Date();
-    const overdue = (deals ?? []).filter(
-      (d) => d.deadline && isPast(new Date(d.deadline)) && d.status !== "paid"
-    );
-    const pendingPayment = (deals ?? []).filter((d) => d.status === "posted");
-    const upcomingDeadlines = (deals ?? [])
-      .filter(
-        (d) =>
-          d.deadline &&
-          d.status !== "paid" &&
-          isWithinInterval(new Date(d.deadline), { start: now, end: addDays(now, 14) })
-      )
-      .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
-      .slice(0, 5);
-
-    setKpi({
-      totalEarned,
-      activeDeals: active.length,
-      overdue: overdue.length,
-      pendingPayment: pendingPayment.length,
-      upcomingDeadlines,
-    });
+    setKpi(computeKpi((deals as Deal[]) ?? [], payments ?? []));
     setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [user, demoMode]);
 
   const kpiCards = [
     {
@@ -110,7 +120,6 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-headline text-3xl text-foreground tracking-wide">
@@ -122,6 +131,8 @@ export default function Dashboard() {
           onClick={() => setAddModalOpen(true)}
           className="bg-primary text-primary-foreground font-semibold gap-2"
           data-testid="button-add-deal"
+          disabled={demoMode}
+          title={demoMode ? "Sign in to add deals" : undefined}
         >
           <Plus className="w-4 h-4" />
           Add Deal
@@ -187,7 +198,7 @@ export default function Dashboard() {
                 <div
                   key={deal.id}
                   className="px-6 py-4 flex items-center justify-between hover:bg-white/[0.02] cursor-pointer transition-colors"
-                  onClick={() => setLocation(`/deals/${deal.id}`)}
+                  onClick={() => !demoMode && setLocation(`/deals/${deal.id}`)}
                   data-testid={`deadline-deal-${deal.id}`}
                 >
                   <div>

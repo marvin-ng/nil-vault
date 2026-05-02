@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MailCheck } from "lucide-react";
+import { MailCheck, Zap } from "lucide-react";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -18,7 +18,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function Login() {
   const [, setLocation] = useLocation();
-  const { fetchProfile } = useAuthStore();
+  const { fetchProfile, enterDemo } = useAuthStore();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,6 +28,11 @@ export default function Login() {
     resolver: zodResolver(schema),
     defaultValues: { email: "", password: "" },
   });
+
+  const handleDemo = () => {
+    enterDemo();
+    setLocation("/dashboard");
+  };
 
   const onSubmit = async (values: FormValues) => {
     setError(null);
@@ -40,7 +45,6 @@ export default function Login() {
         });
         if (signUpError) throw signUpError;
 
-        // If no session, Supabase requires email confirmation
         if (!data.session) {
           setConfirmEmail(values.email);
           return;
@@ -71,7 +75,6 @@ export default function Login() {
     }
   };
 
-  // Email confirmation pending state
   if (confirmEmail) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
@@ -84,9 +87,7 @@ export default function Login() {
               <MailCheck className="w-7 h-7 text-primary" />
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-2">Check your email</h2>
-            <p className="text-sm text-muted-foreground mb-1">
-              We sent a confirmation link to:
-            </p>
+            <p className="text-sm text-muted-foreground mb-1">We sent a confirmation link to:</p>
             <p className="text-sm font-mono text-primary mb-4">{confirmEmail}</p>
             <p className="text-xs text-muted-foreground mb-6">
               Click the link in your email, then come back here and sign in.
@@ -101,9 +102,7 @@ export default function Login() {
             >
               Back to Sign In
             </Button>
-            <p className="text-xs text-muted-foreground mt-4">
-              Didn't get it? Check your spam folder.
-            </p>
+            <p className="text-xs text-muted-foreground mt-4">Didn't get it? Check your spam folder.</p>
           </div>
         </div>
       </div>
@@ -118,6 +117,23 @@ export default function Login() {
           <p className="text-muted-foreground text-sm">The back office you never got.</p>
         </div>
 
+        {/* Demo CTA */}
+        <button
+          onClick={handleDemo}
+          className="w-full mb-4 flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors group"
+          data-testid="button-demo"
+        >
+          <Zap className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+          <span className="text-sm font-semibold text-primary">Try the Demo</span>
+          <span className="text-xs text-muted-foreground">— no account needed</span>
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground">or sign in</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
         <div className="bg-card border border-card-border rounded-xl p-8">
           <h2 className="text-lg font-semibold text-foreground mb-6">
             {mode === "signin" ? "Sign in to your account" : "Create your account"}
@@ -130,9 +146,7 @@ export default function Login() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs uppercase tracking-wider font-mono">
-                      Email
-                    </FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs uppercase tracking-wider font-mono">Email</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -151,9 +165,7 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs uppercase tracking-wider font-mono">
-                      Password
-                    </FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs uppercase tracking-wider font-mono">Password</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -169,9 +181,7 @@ export default function Login() {
               />
 
               {error && (
-                <p className="text-destructive text-sm" data-testid="text-error">
-                  {error}
-                </p>
+                <p className="text-destructive text-sm" data-testid="text-error">{error}</p>
               )}
 
               <Button
@@ -198,16 +208,12 @@ export default function Login() {
               className="text-sm text-muted-foreground hover:text-primary transition-colors"
               data-testid="button-toggle-mode"
             >
-              {mode === "signin"
-                ? "Don't have an account? Sign up"
-                : "Already have an account? Sign in"}
+              {mode === "signin" ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
             </button>
           </div>
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-8">
-          Free for athletes, always.
-        </p>
+        <p className="text-center text-xs text-muted-foreground mt-8">Free for athletes, always.</p>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, XCircle, Download, ShieldCheck, ShieldAlert } from "lucide-react";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
+import { DEMO_DEALS } from "@/lib/mockData";
 
 interface Deal {
   id: string;
@@ -25,7 +26,7 @@ function checkFTC(caption: string): boolean {
 }
 
 export default function Compliance() {
-  const { user, profile } = useAuthStore();
+  const { user, profile, demoMode } = useAuthStore();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [caption, setCaption] = useState("");
@@ -33,6 +34,11 @@ export default function Compliance() {
   const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
+    if (demoMode) {
+      setDeals(DEMO_DEALS as Deal[]);
+      setLoading(false);
+      return;
+    }
     if (!user) { setLoading(false); return; }
     supabase
       .from("deals")
@@ -43,15 +49,24 @@ export default function Compliance() {
         setDeals((data as Deal[]) ?? []);
         setLoading(false);
       });
-  }, [user]);
+  }, [user, demoMode]);
 
   const checkCaption = async () => {
     const result = checkFTC(caption);
     setFtcResult(result);
 
-    const matchedDeal = deals.find(
-      (d) => d.status === "posted" && d.ftc_compliant !== result
-    );
+    if (demoMode) {
+      // Update local state only in demo mode
+      const matchedDeal = deals.find((d) => d.status === "posted" && d.ftc_compliant !== result);
+      if (matchedDeal) {
+        setDeals((prev) =>
+          prev.map((d) => (d.id === matchedDeal.id ? { ...d, ftc_compliant: result } : d))
+        );
+      }
+      return;
+    }
+
+    const matchedDeal = deals.find((d) => d.status === "posted" && d.ftc_compliant !== result);
     if (matchedDeal) {
       await supabase
         .from("deals")
@@ -64,24 +79,27 @@ export default function Compliance() {
   };
 
   const exportPDF = () => {
-    if (!profile) return;
+    const reportProfile = profile ?? {
+      full_name: "Jordan Williams",
+      school: "University of Texas",
+      sport: "Basketball",
+      division: "NCAA D1",
+    };
     setExportLoading(true);
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Header
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
     doc.text("NIL VAULT — Compliance Report", 14, 20);
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`Athlete: ${profile.full_name ?? "—"}`, 14, 32);
-    doc.text(`School: ${profile.school ?? "—"}  |  Sport: ${profile.sport ?? "—"}  |  Division: ${profile.division ?? "—"}`, 14, 39);
+    doc.text(`Athlete: ${reportProfile.full_name ?? "—"}`, 14, 32);
+    doc.text(`School: ${reportProfile.school ?? "—"}  |  Sport: ${reportProfile.sport ?? "—"}  |  Division: ${reportProfile.division ?? "—"}`, 14, 39);
     doc.text(`Generated: ${format(new Date(), "MMMM d, yyyy")}`, 14, 46);
 
-    // Summary
     const totalEarned = deals.reduce((s, d) => s + (d.amount ?? 0), 0);
     const compliantCount = deals.filter((d) => d.ftc_compliant).length;
     doc.setFont("helvetica", "bold");
@@ -89,7 +107,6 @@ export default function Compliance() {
     doc.setFont("helvetica", "normal");
     doc.text(`Total Deals: ${deals.length}   Total Earned: $${totalEarned.toLocaleString()}   FTC Compliant: ${compliantCount}/${deals.length}`, 14, 65);
 
-    // Table header
     let y = 78;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
@@ -107,10 +124,7 @@ export default function Compliance() {
     doc.setFont("helvetica", "normal");
 
     for (const deal of deals) {
-      if (y > 270) {
-        doc.addPage();
-        y = 20;
-      }
+      if (y > 270) { doc.addPage(); y = 20; }
       doc.text((deal.brand_name ?? "").slice(0, 18), 14, y);
       doc.text((deal.deliverable_type ?? "—").slice(0, 18), 55, y);
       doc.text(deal.amount != null ? `$${Number(deal.amount).toLocaleString()}` : "—", 110, y);
@@ -120,7 +134,8 @@ export default function Compliance() {
       y += 7;
     }
 
-    doc.save(`NIL-Vault-Compliance-${profile.full_name?.replace(/\s+/g, "-") ?? "report"}-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    const name = reportProfile.full_name?.replace(/\s+/g, "-") ?? "report";
+    doc.save(`NIL-Vault-Compliance-${name}-${format(new Date(), "yyyy-MM-dd")}.pdf`);
     setExportLoading(false);
   };
 
@@ -145,7 +160,6 @@ export default function Compliance() {
         </Button>
       </div>
 
-      {/* Summary badges */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-card border border-card-border rounded-xl p-5 flex items-center gap-4">
           <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
@@ -167,11 +181,13 @@ export default function Compliance() {
         </div>
       </div>
 
-      {/* FTC Caption Checker */}
       <div className="bg-card border border-card-border rounded-xl p-6 mb-6">
         <h2 className="text-sm font-semibold text-foreground mb-1">FTC Caption Checker</h2>
         <p className="text-xs text-muted-foreground mb-4">
-          Paste your post caption. NIL Vault checks for <span className="font-mono text-primary">#ad</span>, <span className="font-mono text-primary">#sponsored</span>, or <span className="font-mono text-primary">#partner</span>.
+          Paste your post caption. NIL Vault checks for{" "}
+          <span className="font-mono text-primary">#ad</span>,{" "}
+          <span className="font-mono text-primary">#sponsored</span>, or{" "}
+          <span className="font-mono text-primary">#partner</span>.
         </p>
         <Textarea
           value={caption}
@@ -209,7 +225,6 @@ export default function Compliance() {
         </Button>
       </div>
 
-      {/* Deal compliance table */}
       <div className="bg-card border border-card-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-card-border">
           <h2 className="text-sm font-semibold text-foreground">Deal Compliance History</h2>

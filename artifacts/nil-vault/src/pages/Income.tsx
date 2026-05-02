@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { DEMO_PAYMENTS } from "@/lib/mockData";
 
 interface Payment {
   id: string;
@@ -19,13 +20,38 @@ interface ChartPoint {
   amount: number;
 }
 
+function buildChartData(payments: Payment[]): ChartPoint[] {
+  const now = new Date();
+  const points: ChartPoint[] = [];
+  for (let i = 11; i >= 0; i--) {
+    const monthDate = subMonths(now, i);
+    const start = startOfMonth(monthDate);
+    const end = endOfMonth(monthDate);
+    const total = payments
+      .filter((p) => {
+        const d = new Date(p.paid_at);
+        return d >= start && d <= end;
+      })
+      .reduce((sum, p) => sum + Number(p.amount), 0);
+    points.push({ month: format(monthDate, "MMM"), amount: total });
+  }
+  return points;
+}
+
 export default function Income() {
-  const { user } = useAuthStore();
+  const { user, demoMode } = useAuthStore();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (demoMode) {
+      const rows = DEMO_PAYMENTS as Payment[];
+      setPayments(rows);
+      setChartData(buildChartData(rows));
+      setLoading(false);
+      return;
+    }
     if (!user) { setLoading(false); return; }
     supabase
       .from("payments")
@@ -35,33 +61,14 @@ export default function Income() {
       .then(({ data }) => {
         const rows = (data as Payment[]) ?? [];
         setPayments(rows);
-
-        // Build monthly chart data for last 12 months
-        const now = new Date();
-        const points: ChartPoint[] = [];
-        for (let i = 11; i >= 0; i--) {
-          const monthDate = subMonths(now, i);
-          const start = startOfMonth(monthDate);
-          const end = endOfMonth(monthDate);
-          const total = rows
-            .filter((p) => {
-              const d = new Date(p.paid_at);
-              return d >= start && d <= end;
-            })
-            .reduce((sum, p) => sum + Number(p.amount), 0);
-          points.push({
-            month: format(monthDate, "MMM"),
-            amount: total,
-          });
-        }
-        setChartData(points);
+        setChartData(buildChartData(rows));
         setLoading(false);
       });
-  }, [user]);
+  }, [user, demoMode]);
 
   const totalEarned = payments.reduce((sum, p) => sum + Number(p.amount), 0);
   const avgMonthly = chartData.length
-    ? chartData.reduce((s, c) => s + c.amount, 0) / chartData.filter((c) => c.amount > 0).length || 0
+    ? chartData.reduce((s, c) => s + c.amount, 0) / (chartData.filter((c) => c.amount > 0).length || 1)
     : 0;
 
   return (
@@ -71,7 +78,6 @@ export default function Income() {
         <p className="text-muted-foreground text-sm mt-0.5">Payment history and monthly earnings</p>
       </div>
 
-      {/* Summary */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-card border border-card-border rounded-xl p-5">
           {loading ? <Skeleton className="h-8 w-24" /> : (
@@ -89,7 +95,6 @@ export default function Income() {
         </div>
       </div>
 
-      {/* Monthly bar chart */}
       <div className="bg-card border border-card-border rounded-xl p-6 mb-6">
         <h2 className="text-sm font-semibold text-foreground mb-6">Monthly Earnings (Last 12 Months)</h2>
         {loading ? (
@@ -122,10 +127,7 @@ export default function Income() {
               />
               <Bar dataKey="amount" radius={[4, 4, 0, 0]} maxBarSize={40}>
                 {chartData.map((entry, index) => (
-                  <Cell
-                    key={index}
-                    fill={entry.amount > 0 ? "hsl(41 80% 60%)" : "hsl(0 0% 10%)"}
-                  />
+                  <Cell key={index} fill={entry.amount > 0 ? "hsl(41 80% 60%)" : "hsl(0 0% 10%)"} />
                 ))}
               </Bar>
             </BarChart>
@@ -133,7 +135,6 @@ export default function Income() {
         )}
       </div>
 
-      {/* Payment log table */}
       <div className="bg-card border border-card-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-card-border">
           <h2 className="text-sm font-semibold text-foreground">Payment History</h2>
@@ -159,15 +160,9 @@ export default function Income() {
             <tbody className="divide-y divide-card-border">
               {payments.map((p) => (
                 <tr key={p.id} className="hover:bg-white/[0.02]" data-testid={`payment-row-${p.id}`}>
-                  <td className="px-6 py-3 font-medium text-foreground">
-                    {p.deals?.brand_name ?? "—"}
-                  </td>
-                  <td className="px-4 py-3 font-mono font-bold text-primary">
-                    ${Number(p.amount).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">
-                    {p.notes ?? "—"}
-                  </td>
+                  <td className="px-6 py-3 font-medium text-foreground">{p.deals?.brand_name ?? "—"}</td>
+                  <td className="px-4 py-3 font-mono font-bold text-primary">${Number(p.amount).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{p.notes ?? "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
                     {format(new Date(p.paid_at), "MMM d, yyyy")}
                   </td>

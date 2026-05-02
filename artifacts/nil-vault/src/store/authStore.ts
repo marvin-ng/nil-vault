@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
+import { DEMO_PROFILE } from "@/lib/mockData";
 
 interface Profile {
   id: string;
@@ -18,10 +19,12 @@ interface AuthState {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  demoMode: boolean;
   setSession: (session: Session | null) => void;
   setProfile: (profile: Profile | null) => void;
   fetchProfile: () => Promise<void>;
   signOut: () => Promise<void>;
+  enterDemo: () => void;
   initialize: () => Promise<void>;
 }
 
@@ -30,6 +33,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
   loading: true,
+  demoMode: false,
 
   setSession: (session) => {
     set({ session, user: session?.user ?? null });
@@ -37,6 +41,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setProfile: (profile) => {
     set({ profile });
+  },
+
+  enterDemo: () => {
+    set({ demoMode: true, profile: DEMO_PROFILE, loading: false });
   },
 
   fetchProfile: async () => {
@@ -51,6 +59,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
+    const { demoMode } = get();
+    if (demoMode) {
+      set({ demoMode: false, session: null, user: null, profile: null });
+      return;
+    }
     await supabase.auth.signOut();
     set({ session: null, user: null, profile: null });
   },

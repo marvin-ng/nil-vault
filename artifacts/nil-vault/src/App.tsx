@@ -35,7 +35,9 @@ function ProtectedRoute({ component: Component, adminOnly = false }: {
 }
 
 function AuthRoute({ component: Component }: { component: React.ComponentType }) {
-  const { session, profile } = useAuthStore();
+  const { session, profile, demoMode } = useAuthStore();
+
+  if (demoMode) return <Redirect to="/dashboard" />;
 
   if (session && profile) {
     if (profile.role === "admin") return <Redirect to="/admin" />;
