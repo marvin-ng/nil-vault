@@ -548,7 +548,7 @@ export default function Landing() {
               Real-time dashboard of every athlete's deal status across your program.{" "}
               <strong style={{ color:"#000",fontStyle:"normal" }}>One-click compliance export when the NCAA comes calling.</strong> Know before it becomes a crisis.
             </p>
-            <div style={{ fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:1,color:"rgba(0,0,0,0.5)",marginTop:28 }}>Per program annually · Scales with roster size</div>
+            <div style={{ fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:1,color:"rgba(0,0,0,0.5)",marginTop:6 }}>Per program annually · Scales with roster size</div>
           </div>
         </div>
       </section>
