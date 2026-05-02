@@ -1,0 +1,83 @@
+I want to build a web application called NIL Vault. Before you start writing any code, I need you to read everything below carefully — this is the full product context, not just a feature list.
+
+═══════════════════════════════════════════
+WHAT WE ARE BUILDING — READ THIS FIRST
+═══════════════════════════════════════════
+
+NIL Vault is a brand deal management dashboard for college student athletes — specifically the ones without agents, without advisors, and without any system to manage their NIL business. Think D2, D3, NAIA, mid-major athletes juggling 15 credit hours, practice, and 4 inbound brand deals sitting in their DMs.
+
+The core problem: a 20-year-old just signed a protein bar deal. The contract is a screenshot buried between chemistry notes and a Halloween selfie. The brand says she owes them a post. She doesn't remember agreeing to that. The compliance office gets a call Thursday. Nobody taught her to run a business.
+
+NIL Vault is the back office she never got.
+
+═══════════════════════════════════════════
+THE TWO USERS
+═══════════════════════════════════════════
+
+USER 1 — THE ATHLETE (primary, free forever)
+A college student athlete managing their own NIL deals. They need to log deals, track deadlines, store contracts, log payments, and stay FTC compliant. They are not technical. The UI must be dead simple — they should be able to log a new deal in under 60 seconds.
+
+USER 2 — THE UNIVERSITY / COMPLIANCE OFFICE (pays $10K-25K/yr)
+An athletic department compliance officer who needs visibility into every athlete's deal activity across the program. When the NCAA asks questions, they need to export a PDF report in one click. This is the monetization. Build it as a separate admin role — read-only view of all athletes in their program.
+
+═══════════════════════════════════════════
+THE BUSINESS MODEL
+═══════════════════════════════════════════
+
+Free for athletes — forever. No credit card, no paywall.
+Universities pay $10,000–$25,000/year for the compliance admin dashboard.
+Go-to-market: start with 15 athletes at one mid-major program. Partner with the compliance office. Build the compliance export first — that is the feature that gets athletic departments to mandate adoption. Once one program requires it, athletes stop being users and start being inventory.
+
+═══════════════════════════════════════════
+THE 5-STAGE DEAL PIPELINE — THIS IS THE CORE
+═══════════════════════════════════════════
+
+Every deal moves through exactly 5 stages. This is a Kanban board with drag-and-drop.
+
+1. INQUIRY — Brand reached out. Unvetted. Source logged (DM / email / other).
+2. NEGOTIATING — Terms being discussed. Amount and deliverables TBD.
+3. SIGNED — Contract uploaded. Deadlines and deliverables confirmed.
+4. POSTED — Deliverable completed. FTC disclosure confirmed.
+5. PAID — Payment received and logged. Deal closed.
+
+Each deal card shows exactly 5 fields: Brand Name · Deliverables · Deadline · Amount · Status
+That is it. No scope creep. Simplicity is a design decision.
+
+═══════════════════════════════════════════
+DESIGN DIRECTION
+═══════════════════════════════════════════
+
+Dark theme. Background #080808. Gold #E8B84B as the primary accent color.
+Editorial sports fintech aesthetic — think ESPN Magazine meets a modern finance SaaS.
+Fonts: Barlow Condensed (headlines) + DM Sans (body) + DM Mono (labels/data).
+Mobile responsive. On small screens the sidebar collapses to a bottom tab bar.
+Clean, confident, zero visual clutter. The athlete should feel like they have a real back office, not a student project.
+
+DO NOT use purple gradients, generic layouts, or anything that looks like default AI-generated UI. This needs to look like a real funded startup product.
+
+═══════════════════════════════════════════
+BUILD PRIORITY ORDER
+═══════════════════════════════════════════
+
+Build in this exact order. Do not skip ahead.
+
+1. Supabase setup — create all tables, set RLS policies
+2. Auth — email/password signup + onboarding (name, sport, school, division)
+3. Deals Kanban — 5-column board with drag and drop, Add Deal modal
+4. Deal Detail page — all 5 fields, deliverables checklist, contract upload, payment log
+5. Compliance checker — FTC caption check + PDF export via jsPDF
+6. Admin dashboard — university role, read-only program-wide view, bulk export
+7. Dashboard home — KPI cards, upcoming deadlines feed, income chart
+
+═══════════════════════════════════════════
+SECURITY — NON-NEGOTIABLE
+═══════════════════════════════════════════
+
+Supabase Row Level Security must be enabled on every table.
+Athletes can only read and write their own data.
+Admins can only read athletes within their own program_id.
+Athlete A must never be able to see Athlete B's deals, payments, or documents under any circumstance.
+
+═══════════════════════════════════════════
+NOW READ THE TECHNICAL SPEC BELOW AND START BUILDING
+═══════════════════════════════════════════
