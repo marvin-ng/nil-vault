@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Briefcase, ShieldCheck, DollarSign, Users, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Briefcase, ShieldCheck, DollarSign, Users, LogOut, Menu, X, LogIn } from "lucide-react";
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/button";
@@ -64,27 +64,39 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        {/* User info */}
+        {/* User info / Sign in */}
         <div className="border-t border-sidebar-border p-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {profile?.full_name ?? profile?.email}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {profile?.sport ?? (profile?.role === "admin" ? "Admin" : "")}
-              </p>
+          {profile ? (
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {profile.full_name ?? profile.email}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {profile.sport ?? (profile.role === "admin" ? "Admin" : "")}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={signOut}
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+                data-testid="button-signout"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={signOut}
-              className="shrink-0 text-muted-foreground hover:text-destructive"
-              data-testid="button-signout"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
+          ) : (
+            <Link href="/login">
+              <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors">
+                <LogIn className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold text-primary">Sign In</p>
+                  <p className="text-[10px] text-muted-foreground">to save your deals</p>
+                </div>
+              </div>
+            </Link>
+          )}
         </div>
       </aside>
 

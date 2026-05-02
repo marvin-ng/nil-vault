@@ -45,7 +45,10 @@ export function AddDealModal({ open, onClose, onCreated, initialStatus = "inquir
   });
 
   const onSubmit = async (values: FormValues) => {
-    if (!user) return;
+    if (!user) {
+      setError("You need to sign in before adding deals.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
