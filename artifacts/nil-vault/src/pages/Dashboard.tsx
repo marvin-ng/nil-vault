@@ -33,7 +33,7 @@ export default function Dashboard() {
   const [addModalOpen, setAddModalOpen] = useState(false);
 
   const fetchData = async () => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
     setLoading(true);
 
     const { data: deals } = await supabase

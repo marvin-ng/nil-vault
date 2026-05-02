@@ -43,7 +43,7 @@ export default function Deals() {
   );
 
   const fetchDeals = useCallback(async () => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
     setLoading(true);
     const { data } = await supabase
       .from("deals")

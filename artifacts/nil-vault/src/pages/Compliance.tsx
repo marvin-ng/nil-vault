@@ -33,7 +33,7 @@ export default function Compliance() {
   const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
     supabase
       .from("deals")
       .select("id, brand_name, amount, status, deadline, ftc_compliant, deliverable_type")
