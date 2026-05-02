@@ -22,7 +22,7 @@ export function Scene2() {
       exit={{ opacity: 0, x: "-10%" }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative w-[80vw] h-[60vh]">
+      <div className="relative w-[1024px] h-[432px]">
         <motion.div 
           className="absolute top-10 left-10 p-6 bg-[#0f0f0f] border border-[#161616] max-w-md shadow-2xl"
           initial={{ opacity: 0, x: -100, rotate: -10 }}
