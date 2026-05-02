@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { LogIn } from "lucide-react";
 
 const schema = z.object({
   full_name: z.string().min(2, "Enter your full name"),
@@ -33,7 +34,10 @@ export default function Onboarding() {
   });
 
   const onSubmit = async (values: FormValues) => {
-    if (!user) return;
+    if (!user) {
+      setError("Your session has expired. Please sign in again.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -63,6 +67,26 @@ export default function Onboarding() {
           <h2 className="text-xl font-semibold text-foreground">Set up your profile</h2>
           <p className="text-muted-foreground text-sm mt-1">This takes 30 seconds. Let's get your back office ready.</p>
         </div>
+
+        {/* Session warning when no user */}
+        {!user && (
+          <div className="bg-amber-400/10 border border-amber-400/25 rounded-xl px-5 py-4 mb-5 flex items-start gap-3">
+            <LogIn className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm text-amber-400 font-medium">Session not active</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Your account needs to be confirmed before you can save your profile.{" "}
+                <button
+                  onClick={() => setLocation("/login")}
+                  className="text-primary hover:underline"
+                >
+                  Sign in here
+                </button>{" "}
+                after confirming your email.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="bg-card border border-card-border rounded-xl p-8">
           <Form {...form}>
@@ -141,16 +165,40 @@ export default function Onboarding() {
                 )}
               />
 
-              {error && <p className="text-destructive text-sm">{error}</p>}
+              {error && (
+                <div className="text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3">
+                  {error}{" "}
+                  {!user && (
+                    <button
+                      type="button"
+                      onClick={() => setLocation("/login")}
+                      className="underline font-medium"
+                    >
+                      Go to sign in →
+                    </button>
+                  )}
+                </div>
+              )}
 
               <Button
                 type="submit"
                 className="w-full bg-primary text-primary-foreground font-semibold"
-                disabled={loading}
+                disabled={loading || !user}
                 data-testid="button-save-profile"
               >
                 {loading ? "Saving..." : "Enter the Vault"}
               </Button>
+
+              {!user && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setLocation("/login")}
+                >
+                  Back to Sign In
+                </Button>
+              )}
             </form>
           </Form>
         </div>

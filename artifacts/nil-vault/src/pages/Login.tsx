@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { MailCheck } from "lucide-react";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -21,6 +22,7 @@ export default function Login() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmEmail, setConfirmEmail] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -32,11 +34,18 @@ export default function Login() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
         });
         if (signUpError) throw signUpError;
+
+        // If no session, Supabase requires email confirmation
+        if (!data.session) {
+          setConfirmEmail(values.email);
+          return;
+        }
+
         await fetchProfile();
         setLocation("/onboarding");
       } else {
@@ -62,16 +71,53 @@ export default function Login() {
     }
   };
 
+  // Email confirmation pending state
+  if (confirmEmail) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-10">
+            <h1 className="font-headline text-5xl text-primary tracking-widest mb-2">NIL VAULT</h1>
+          </div>
+          <div className="bg-card border border-card-border rounded-xl p-8 text-center">
+            <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MailCheck className="w-7 h-7 text-primary" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground mb-2">Check your email</h2>
+            <p className="text-sm text-muted-foreground mb-1">
+              We sent a confirmation link to:
+            </p>
+            <p className="text-sm font-mono text-primary mb-4">{confirmEmail}</p>
+            <p className="text-xs text-muted-foreground mb-6">
+              Click the link in your email, then come back here and sign in.
+            </p>
+            <Button
+              className="w-full bg-primary text-primary-foreground font-semibold"
+              onClick={() => {
+                setConfirmEmail(null);
+                setMode("signin");
+                form.setValue("email", confirmEmail);
+              }}
+            >
+              Back to Sign In
+            </Button>
+            <p className="text-xs text-muted-foreground mt-4">
+              Didn't get it? Check your spam folder.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Wordmark */}
         <div className="text-center mb-10">
           <h1 className="font-headline text-5xl text-primary tracking-widest mb-2">NIL VAULT</h1>
           <p className="text-muted-foreground text-sm">The back office you never got.</p>
         </div>
 
-        {/* Card */}
         <div className="bg-card border border-card-border rounded-xl p-8">
           <h2 className="text-lg font-semibold text-foreground mb-6">
             {mode === "signin" ? "Sign in to your account" : "Create your account"}
@@ -148,7 +194,7 @@ export default function Login() {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+              onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(null); }}
               className="text-sm text-muted-foreground hover:text-primary transition-colors"
               data-testid="button-toggle-mode"
             >
