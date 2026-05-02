@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/store/authStore";
 
+import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Onboarding from "@/pages/Onboarding";
 import Dashboard from "@/pages/Dashboard";
@@ -69,7 +70,7 @@ function Router() {
       <Route path="/income" component={() => <ProtectedRoute component={Income} />} />
       <Route path="/admin/athlete/:id" component={() => <ProtectedRoute component={AdminAthlete} adminOnly />} />
       <Route path="/admin" component={() => <ProtectedRoute component={Admin} adminOnly />} />
-      <Route path="/" component={() => <Redirect to="/dashboard" />} />
+      <Route path="/" component={() => <AuthRoute component={Landing} />} />
       <Route component={NotFound} />
     </Switch>
   );
