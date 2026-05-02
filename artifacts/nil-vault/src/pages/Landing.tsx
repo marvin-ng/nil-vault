@@ -49,12 +49,29 @@ function WaitlistModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setDone(true); }, 900);
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError((data as { error?: string }).error ?? "Something went wrong. Please try again.");
+      } else {
+        setDone(true);
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -127,15 +144,20 @@ function WaitlistModal({ onClose }: { onClose: () => void }) {
                 type="email"
                 placeholder="your@email.edu"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => { setEmail(e.target.value); setError(null); }}
                 required
                 style={{
-                  background: SURFACE2, border: `1px solid ${BORDER2}`,
+                  background: SURFACE2, border: `1px solid ${error ? "#ef4444" : BORDER2}`,
                   color: TEXT, padding: "14px 16px",
                   fontFamily: "'DM Mono', monospace", fontSize: 13,
                   outline: "none", width: "100%",
                 }}
               />
+              {error && (
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: "#ef4444", letterSpacing: 1 }}>
+                  {error}
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={loading}
