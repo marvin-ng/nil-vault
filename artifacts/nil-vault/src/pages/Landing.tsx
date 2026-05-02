@@ -400,7 +400,7 @@ export default function Landing() {
             <strong style={{ color:TEXT,fontStyle:"normal" }}>The protein bar company says she owes them a post.</strong>{" "}
             The contract is in her camera roll. The compliance office gets a call Thursday. Her parents drive four hours.{" "}
             <br /><br />
-            <strong style={{ color:TEXT,fontStyle:"normal" }}>NIL Vault is the back office she never got.</strong> Every deal in one pipeline. Every deadline visible. Every payment tracked. Every disclosure compliant.
+            <strong style={{ color:TEXT,fontStyle:"normal" }}>NIL Vault is the back office you never got.</strong> Every deal in one pipeline. Every deadline visible. Every payment tracked. Every disclosure compliant.
           </p>
         </div>
         <div style={{ display:"flex",flexDirection:"column",gap:2 }}>
