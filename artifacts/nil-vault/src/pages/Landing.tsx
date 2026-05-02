@@ -189,8 +189,16 @@ function WaitlistModal({ onClose }: { onClose: () => void }) {
 
 export default function Landing() {
   const [showWaitlist, setShowWaitlist] = useState(false);
+  const [waitlistCount, setWaitlistCount] = useState<number | null>(null);
   const curDotRef = useRef<HTMLDivElement>(null);
   const curRingRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch("/api/waitlist/count")
+      .then(r => r.json())
+      .then((d: { count: number }) => setWaitlistCount(d.count))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const dot = curDotRef.current;
@@ -329,6 +337,18 @@ export default function Landing() {
               <div style={{ fontFamily:"'DM Mono',monospace",fontSize:10,color:MUTED,letterSpacing:1,textAlign:"right" }}>
                 Free for athletes · <span style={{ color:GOLD }}>Forever</span>
               </div>
+              {waitlistCount !== null && waitlistCount > 0 && (
+                <div style={{ display:"flex",alignItems:"center",gap:8,marginTop:2 }}>
+                  <div style={{ display:"flex",gap:-4 }}>
+                    {[0,1,2].map(i => (
+                      <div key={i} style={{ width:18,height:18,borderRadius:"50%",background:`hsl(${40+i*15},60%,${45+i*5}%)`,border:`1.5px solid ${BG}`,marginLeft:i>0?-6:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,color:"#000",fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif" }}>{String.fromCharCode(65+i)}</div>
+                    ))}
+                  </div>
+                  <div style={{ fontFamily:"'DM Mono',monospace",fontSize:10,color:MUTED2,letterSpacing:1 }}>
+                    <span style={{ color:GOLD,fontWeight:600 }}>{waitlistCount.toLocaleString()}</span> {waitlistCount === 1 ? "athlete" : "athletes"} already in line
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -376,7 +396,7 @@ export default function Landing() {
             No Agent.<br />No System.<br /><em style={{ color:GOLD }}>No Safety Net.</em>
           </h2>
           <p style={{ fontFamily:"'Lora',serif",fontSize:17,color:MUTED2,lineHeight:1.8,fontStyle:"italic" }}>
-            She's a 20-year-old with four brand deals, 15 credit hours, and practice at 6am.{" "}
+            A 20-year-old with four brand deals, 15 credit hours, and practice at 6am.{" "}
             <strong style={{ color:TEXT,fontStyle:"normal" }}>The protein bar company says she owes them a post.</strong>{" "}
             The contract is in her camera roll. The compliance office gets a call Thursday. Her parents drive four hours.{" "}
             <br /><br />

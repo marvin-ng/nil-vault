@@ -1,8 +1,18 @@
 import { Router, type IRouter } from "express";
 import { db, waitlistTable, insertWaitlistSchema } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 
 const router: IRouter = Router();
+
+router.get("/waitlist/count", async (req, res) => {
+  try {
+    const result = await db.select({ count: count() }).from(waitlistTable);
+    res.status(200).json({ count: result[0]?.count ?? 0 });
+  } catch (err) {
+    req.log.error({ err }, "Waitlist count failed");
+    res.status(500).json({ error: "Something went wrong." });
+  }
+});
 
 router.post("/waitlist", async (req, res) => {
   const parsed = insertWaitlistSchema.safeParse(req.body);
