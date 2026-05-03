@@ -275,21 +275,28 @@ export default function Landing() {
         .lv-who-card { background:${SURFACE};padding:24px 20px;border-top:2px solid transparent;transition:border-color .25s,background .25s; }
         .lv-who-card:hover { border-top-color:${GOLD};background:${SURFACE2}; }
         .lv-export-btn { font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;background:${GOLD};color:#000;padding:6px 12px;border:none;cursor:pointer; }
+        .lv-compliance-row { display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #111; }
+        .lv-deal-card-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
         @media (max-width: 768px) {
           .lv-nav-links { display:none!important; }
           .lv-hero-content { padding:0 20px 64px!important; }
           .lv-hero-bottom { flex-direction:column!important;align-items:flex-start!important; }
           .lv-hero-cta-block { align-items:flex-start!important; }
           .lv-story-grid { grid-template-columns:1fr!important;padding:80px 20px!important; }
-          .lv-pipeline-section,.lv-features,.lv-who,.lv-compliance,.lv-two-sided,.lv-final-cta { padding:80px 20px!important; }
+          .lv-pipeline-section,.lv-features,.lv-who,.lv-compliance,.lv-two-sided,.lv-final-cta { padding:64px 20px!important; }
           .lv-pipeline { flex-direction:column!important; }
+          .lv-pipe-col { border-right:none!important;border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 16px!important; }
+          .lv-pipe-col::after { display:none!important; }
           .lv-features-grid { grid-template-columns:1fr!important; }
           .lv-compliance-grid { grid-template-columns:1fr!important; }
+          .lv-compliance-row { flex-direction:column!important;align-items:flex-start!important;gap:6px!important;padding:14px 0!important; }
+          .lv-deal-card-grid { grid-template-columns:1fr!important; }
           .lv-sided-grid { grid-template-columns:1fr!important; }
           .lv-who-grid { grid-template-columns:repeat(2,1fr)!important; }
           .lv-final-cta { flex-direction:column!important;align-items:flex-start!important; }
           .lv-cta-right { align-items:flex-start!important; }
           .lv-section-header { flex-direction:column!important;align-items:flex-start!important;gap:8px!important; }
+          .lv-compliance-report-header { flex-direction:column!important;align-items:flex-start!important;gap:10px!important; }
         }
       `}</style>
 
@@ -444,7 +451,7 @@ export default function Landing() {
             <div style={{ width:10,height:10,borderRadius:"50%",background:"#22c55e" }} />
             <div style={{ fontFamily:"'DM Mono',monospace",fontSize:10,color:MUTED,letterSpacing:2,textTransform:"uppercase",marginLeft:"auto" }}>Deal Card · Signed</div>
           </div>
-          <div style={{ padding:20,display:"grid",gridTemplateColumns:"1fr 1fr",gap:12 }}>
+          <div className="lv-deal-card-grid" style={{ padding:20 }}>
             {[
               { label:"Brand", val:"Ascent Protein Co.", cls:"" },
               { label:"Amount", val:"$1,200", cls:"gold" },
@@ -497,7 +504,7 @@ export default function Landing() {
         </div>
         <div className="lv-reveal" style={revealStyle(.2)}>
           <div style={{ background:"#050505",border:`1px solid ${BORDER2}`,padding:24 }}>
-            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,paddingBottom:14,borderBottom:`1px solid ${BORDER}` }}>
+            <div className="lv-compliance-report-header" style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,paddingBottom:14,borderBottom:`1px solid ${BORDER}` }}>
               <div style={{ fontFamily:"'DM Mono',monospace",fontSize:11,letterSpacing:2,textTransform:"uppercase",color:TEXT }}>Program Compliance Report · Spring 2025</div>
               <button className="lv-export-btn">Export PDF</button>
             </div>
@@ -507,8 +514,8 @@ export default function Landing() {
               { brand:"GameTime Energy", amount:"$750", status:"Missing #ad", ok:false },
               { brand:"Campus Barbershop", amount:"$200", status:"FTC ✓", ok:true },
             ].map(r => (
-              <div key={r.brand} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:`1px solid #111`,fontSize:13 }}>
-                <span style={{ color:TEXT,fontWeight:500 }}>{r.brand}</span>
+              <div key={r.brand} className="lv-compliance-row">
+                <span style={{ color:TEXT,fontWeight:500,fontSize:13 }}>{r.brand}</span>
                 <span style={{ fontFamily:"'DM Mono',monospace",fontSize:12,color:GOLD }}>{r.amount}</span>
                 <span style={{ fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:1,textTransform:"uppercase",padding:"3px 8px",background:r.ok?"rgba(34,197,94,.15)":"rgba(239,68,68,.15)",color:r.ok?"#22c55e":"#ef4444" }}>{r.status}</span>
               </div>
