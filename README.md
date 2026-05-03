@@ -1,3 +1,4 @@
+<img width="1488" height="714" alt="Screenshot 2026-05-03 at 4 11 56 AM" src="https://github.com/user-attachments/assets/58a4d254-a23e-49e2-9187-446c24eddf0b" />
 The Problem:
 
 480,000 college athletes became small business owners overnight when the NCAA opened NIL in 2021. Most of them have no agent, no advisor, and no system. Contracts live in DM threads. Deadlines get missed. Tax season is a surprise. The compliance office finds out when it's already a problem.
