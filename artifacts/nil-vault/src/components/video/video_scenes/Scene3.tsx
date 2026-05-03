@@ -70,9 +70,9 @@ export function Scene3() {
       setTimeout(() => setPhase(3), 1100),
       setTimeout(() => setPhase(4), 1500),
       setTimeout(() => setPhase(5), 1900),
-      setTimeout(() => setPhase(6), 3400),
-      setTimeout(() => setPhase(7), 4400),
-      setTimeout(() => setPhase(8), 5200),
+      setTimeout(() => setPhase(6), 2400),
+      setTimeout(() => setPhase(7), 3100),
+      setTimeout(() => setPhase(8), 3700),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
