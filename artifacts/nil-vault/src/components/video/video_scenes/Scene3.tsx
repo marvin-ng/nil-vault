@@ -6,6 +6,7 @@ const COLUMNS = [
     stage: "Inquiry",
     deals: [
       { brand: "Gatorade", amount: "$2,000", badge: "New", badgeColor: "#E8B84B", badgeBg: "rgba(232,184,75,0.12)" },
+      { brand: "Under Armour", amount: "$800", badge: "New", badgeColor: "#E8B84B", badgeBg: "rgba(232,184,75,0.12)" },
     ],
   },
   {
@@ -18,6 +19,7 @@ const COLUMNS = [
     stage: "Signed",
     deals: [
       { brand: "Local Ford", amount: "$400", badge: "On track", badgeColor: "#22c55e", badgeBg: "rgba(34,197,94,0.1)" },
+      { brand: "State Farm", amount: "$650", badge: "On track", badgeColor: "#22c55e", badgeBg: "rgba(34,197,94,0.1)" },
     ],
   },
   {
@@ -60,7 +62,7 @@ export function Scene3() {
       exit={{ opacity: 0, y: -40 }}
       transition={{ duration: 0.7 }}
     >
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 24 }}>
         <motion.div
           style={{
             fontFamily: "'DM Mono', monospace",
@@ -90,7 +92,7 @@ export function Scene3() {
         </motion.h2>
       </div>
 
-      <div style={{ display: "flex", gap: 8, height: 300 }}>
+      <div style={{ display: "flex", gap: 8, height: 340 }}>
         {COLUMNS.map((col, i) => {
           const isActive = phase >= i + 1;
 
@@ -110,54 +112,68 @@ export function Scene3() {
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <div style={{
-                padding: "13px 14px 10px",
+                padding: "12px 14px 9px",
                 borderBottom: "1px solid rgba(255,255,255,0.05)",
+                display: "flex", justifyContent: "space-between", alignItems: "center",
               }}>
-                <div style={{
-                  fontFamily: "'DM Mono', monospace",
-                  fontSize: 9, letterSpacing: 3,
-                  textTransform: "uppercase",
-                  color: isActive ? "#E8B84B" : "#333",
-                  marginBottom: 4,
-                }}>
-                  0{i + 1}
+                <div>
+                  <div style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 9, letterSpacing: 3,
+                    textTransform: "uppercase",
+                    color: isActive ? "#E8B84B" : "#333",
+                    marginBottom: 3,
+                  }}>
+                    0{i + 1}
+                  </div>
+                  <div style={{
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700, fontSize: 15,
+                    textTransform: "uppercase",
+                    color: isActive ? "#EBEBEB" : "#2a2a2a",
+                  }}>
+                    {col.stage}
+                  </div>
                 </div>
-                <div style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700, fontSize: 16,
-                  textTransform: "uppercase",
-                  color: isActive ? "#EBEBEB" : "#2a2a2a",
-                }}>
-                  {col.stage}
-                </div>
+                {isActive && (
+                  <div style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 9,
+                    color: "#555",
+                    background: "#1a1a1a",
+                    padding: "2px 7px",
+                  }}>
+                    {col.deals.length}
+                  </div>
+                )}
               </div>
 
-              <div style={{ flex: 1, padding: "10px 10px 0", display: "flex", flexDirection: "column", gap: 8 }}>
-                {col.deals.map((deal) => (
+              <div style={{ flex: 1, padding: "8px 8px 0", display: "flex", flexDirection: "column", gap: 6, overflowY: "hidden" }}>
+                {col.deals.map((deal, di) => (
                   <motion.div
                     key={deal.brand}
                     style={{
                       background: "#141414",
                       borderLeft: "2px solid rgba(232,184,75,0.4)",
-                      padding: "14px 14px 12px",
+                      padding: "11px 12px 10px",
                     }}
-                    initial={{ opacity: 0, x: 24 }}
-                    animate={{ opacity: isActive ? 1 : 0, x: isActive ? 0 : 24 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 22, delay: 0.12 }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: isActive ? 1 : 0, x: isActive ? 0 : 20 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 22, delay: 0.1 + di * 0.15 }}
                   >
                     <div style={{
                       fontFamily: "'Barlow Condensed', sans-serif",
-                      fontWeight: 700, fontSize: 17,
+                      fontWeight: 700, fontSize: 15,
                       color: "#EBEBEB", lineHeight: 1.2,
-                      marginBottom: 6,
+                      marginBottom: 4,
                     }}>
                       {deal.brand}
                     </div>
                     <div style={{
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: 13, color: "#E8B84B",
+                      fontSize: 12, color: "#E8B84B",
                       fontWeight: 600,
-                      marginBottom: 10,
+                      marginBottom: 8,
                     }}>
                       {deal.amount}
                     </div>
@@ -166,8 +182,8 @@ export function Scene3() {
                       background: deal.badgeBg,
                       color: deal.badgeColor,
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: 10, letterSpacing: 1,
-                      padding: "3px 8px",
+                      fontSize: 9, letterSpacing: 1,
+                      padding: "3px 7px",
                       textTransform: "uppercase",
                     }}>
                       {deal.badge}
